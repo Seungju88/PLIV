@@ -1,0 +1,129 @@
+{
+  "plugin": {
+    "name": "PLIV",
+    "version": "0.1.0-skeleton",
+    "default_profile": "Maestro"
+  },
+  "selection": {
+    "pocket_cutoff": 5.0,
+    "water_cutoff": 3.6,
+    "ion_cutoff": 5.0,
+    "repair_protein_aromatics": true,
+    "solvent_resn": ["HOH", "WAT", "TIP3"],
+    "ion_resn": ["NA", "K", "CL", "CA", "MG", "ZN", "FE", "MN", "CO", "CU", "NI", "CD"]
+  },
+  "profiles": {
+    "Maestro": {
+      "description": "Default profile for parity work against Maestro."
+    }
+  },
+  "interactions": {
+    "contacts": {
+      "good_ratio": 1.3,
+      "bad_ratio": 0.89,
+      "ugly_ratio": 0.75
+    },
+    "hydrogen_bond": {
+      "enabled": true,
+      "cutoff": 2.8,
+      "include_waters": true,
+      "min_donor_angle": 120.0,
+      "min_acceptor_angle": 90.0,
+      "color": "yellow",
+      "width": 3
+    },
+    "water_hydrogen_bond": {
+      "enabled": true,
+      "cutoff": 2.8,
+      "color": "lightblue",
+      "width": 2
+    },
+    "halogen_bond": {
+      "enabled": true,
+      "cutoff": 3.5,
+      "donor_min_angle": 140.0,
+      "acceptor_min_angle": 90.0,
+      "acceptor_mode": {
+        "donor_min_angle": 120.0,
+        "acceptor_min_angle": 90.0,
+        "acceptor_max_angle": 170.0
+      },
+      "color": "purple",
+      "width": 3
+    },
+    "salt_bridge": {
+      "enabled": true,
+      "cutoff": 5.0,
+      "color": "magenta",
+      "width": 4
+    },
+    "aromatic_hydrogen_bond": {
+      "enabled": true,
+      "oxygen_acceptor": {
+        "cutoff": 2.8,
+        "donor_min_angle": 90.0
+      },
+      "imine_nitrogen_acceptor": {
+        "cutoff": 2.5,
+        "donor_min_angle": 108.0
+      },
+      "anionic_nitrogen_acceptor": {
+        "donor_max_angle": 130.0
+      },
+      "acceptor_min_angle": 90.0,
+      "color": "gray50",
+      "width": 2
+    },
+    "pi_pi_stacking": {
+      "enabled": true,
+      "face_to_face": {
+        "cutoff": 4.4,
+        "angle_max": 30.0
+      },
+      "edge_to_face": {
+        "cutoff": 5.5,
+        "min_angle": 60.0
+      },
+      "color": "cyan",
+      "width": 4
+    },
+    "pi_cation": {
+      "enabled": true,
+      "cutoff": 6.6,
+      "angle_max": 30.0,
+      "color": "green",
+      "width": 4
+    },
+    "hydrophobic_contact": {
+      "enabled": true,
+      "cutoff": 4.0,
+      "color": "gray70",
+      "width": 2
+    }
+  },
+  "render": {
+    "cleanup_prefixes": [
+      "mp_pocket_",
+      "mp_water_",
+      "mp_ion_",
+      "mp_group_",
+      "mp_hb_",
+      "mp_whb_",
+      "mp_hal_",
+      "mp_salt_",
+      "mp_pipi_",
+      "mp_pcat_",
+      "mp_hyd_",
+      "mp_tmp_"
+    ],
+    "helper_pseudoatom_scale": 0.12,
+    "water_partner_scale": 0.22,
+    "ion_partner_scale": 0.28,
+    "publication": {
+      "background": "white",
+      "ray_trace_mode": 3,
+      "ray_shadows": 1,
+      "ray_trace_gain": 0.4
+    }
+  }
+}
