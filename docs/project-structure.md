@@ -6,7 +6,7 @@
 |-- docs
 |   |-- project-structure.md
 |   `-- requirements-draft.md
-`-- maestro_pro_plugin
+`-- pliv_plugin
     |-- __init__.py
     |-- config.py
     |-- engine.py
@@ -26,7 +26,7 @@
 - `project-structure.md`
   - installable layout and file ownership
 
-### `maestro_pro_plugin/`
+### `pliv_plugin/`
 
 - `__init__.py`
   - PyMOL plugin entrypoint
@@ -64,13 +64,13 @@
 ## Installable Root
 
 For PyMOL Plugin Manager packaging, the installable root is the
-`maestro_pro_plugin/` directory.
+`pliv_plugin/` directory.
 
 Zip target example:
 
 ```text
-maestro_pro_plugin.zip
-`-- maestro_pro_plugin/
+pliv_plugin.zip
+`-- pliv_plugin/
     |-- __init__.py
     |-- gui.py
     `-- ...

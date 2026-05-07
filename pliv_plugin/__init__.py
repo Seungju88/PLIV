@@ -25,15 +25,14 @@ def _register_commands() -> None:
         return
 
     cmd.extend("pliv_open", open_plugin)
-    cmd.extend("maestro_pro_open", open_plugin)
 
 
 def open_plugin() -> None:
     """Open the plugin dialog."""
     global _controller
 
-    from .gui import MaestroProController
+    from .gui import PLIVController
 
     if _controller is None:
-        _controller = MaestroProController()
+        _controller = PLIVController()
     _controller.show()

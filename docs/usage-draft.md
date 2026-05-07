@@ -210,7 +210,7 @@ PyMOL session 파일을 저장한다. 동시에 아래 정보도 sidecar metadat
 - docking 모드는 현재 `one receptor + one ligand object at a time` 구조다
 - 일부 interaction family는 UI는 준비되어 있어도 typing logic이 완전하지 않을 수 있다
 - profile은 현재 `Maestro` 하나만 제공한다
-- 내부 패키지 폴더명은 아직 `maestro_pro_plugin`이지만, 표시 이름은 `PLIV`를 사용한다
+- 내부 패키지 폴더명은 `pliv_plugin`이고, 표시 이름은 `PLIV`를 사용한다
 
 ## 11. 다음 확장 후보
 

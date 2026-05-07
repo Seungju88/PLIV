@@ -16,10 +16,10 @@ from .models import AnalysisRequest, AnalysisSummary, LigandTarget
 from .renderer import InteractionRenderer
 
 
-class MaestroProDialog(QtWidgets.QDialog):
+class PLIVDialog(QtWidgets.QDialog):
     """Thin GUI wrapper that delegates logic to the engine and renderer."""
 
-    def __init__(self, controller: "MaestroProController") -> None:
+    def __init__(self, controller: "PLIVController") -> None:
         super().__init__()
         self.controller = controller
         self.setWindowTitle("PLIV - Protein-Ligand Interaction Visualizer")
@@ -342,14 +342,14 @@ class MaestroProDialog(QtWidgets.QDialog):
         self.status_box.appendPlainText(message)
 
 
-class MaestroProController:
+class PLIVController:
     """Coordinates the GUI, engine, and renderer."""
 
     def __init__(self) -> None:
         self.config = ConfigManager()
         self.engine = InteractionEngine(self.config)
         self.renderer = InteractionRenderer(self.config)
-        self.dialog = MaestroProDialog(self)
+        self.dialog = PLIVDialog(self)
         self._last_request: Optional[AnalysisRequest] = None
         self._last_summary = None
         self._publication_active = False
@@ -590,10 +590,6 @@ class MaestroProController:
         self.dialog.log(f"Loaded session from {session_path}.")
 
         metadata_path = self._session_metadata_path(session_path)
-        if not metadata_path.exists():
-            legacy_path = self._legacy_session_metadata_path(session_path)
-            if legacy_path.exists():
-                metadata_path = legacy_path
         if metadata_path.exists():
             try:
                 metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
@@ -635,10 +631,6 @@ class MaestroProController:
 
     def _session_metadata_path(self, session_path: Path) -> Path:
         return Path(str(session_path) + ".pliv.json")
-
-    def _legacy_session_metadata_path(self, session_path: Path) -> Path:
-        return Path(str(session_path) + ".maestro.json")
-
     def _capture_analysis_state(self) -> dict[str, Any]:
         if self._last_request is None:
             return {}

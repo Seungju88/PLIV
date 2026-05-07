@@ -13,8 +13,8 @@ skeleton is to give us:
 
 Reference files reviewed during setup:
 
-- `maestro_pro_engine.py`
-- `maestro_pro_gui.py`
+- legacy prototype engine script
+- legacy prototype GUI script
 - `interaction_config.json`
 
 ## Current Layout
@@ -29,15 +29,15 @@ for a working draft of the main PLIV usage guide.
 
 Port the existing prototype logic into these files in this order:
 
-1. `maestro_pro_plugin/engine.py`
-2. `maestro_pro_plugin/renderer.py`
-3. `maestro_pro_plugin/gui.py`
+1. `pliv_plugin/engine.py`
+2. `pliv_plugin/renderer.py`
+3. `pliv_plugin/gui.py`
 
 ## Plugin Packaging Note
 
 PyMOL plugins can be installed from a directory or a zip archive whose root
 contains an `__init__.py` plugin entrypoint. In this repo, that installable root
-is the `maestro_pro_plugin/` directory.
+is the `pliv_plugin/` directory.
 
 ## License
 
