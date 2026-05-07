@@ -13,16 +13,16 @@ skeleton is to give us:
 
 Reference files reviewed during setup:
 
-- `/Users/iseungju/scripts/sjlee/pymol_script/maestro_pro_engine.py`
-- `/Users/iseungju/scripts/sjlee/pymol_script/maestro_pro_gui.py`
-- `/Users/iseungju/scripts/sjlee/pymol_script/interaction_config.json`
+- `maestro_pro_engine.py`
+- `maestro_pro_gui.py`
+- `interaction_config.json`
 
 ## Current Layout
 
-See [docs/project-structure.md](/Users/iseungju/Documents/PLIV/docs/project-structure.md)
+See [docs/project-structure.md](docs/project-structure.md)
 for the directory tree and file responsibilities.
 
-See [docs/usage-draft.md](/Users/iseungju/Documents/PLIV/docs/usage-draft.md)
+See [docs/usage-draft.md](docs/usage-draft.md)
 for a working draft of the main PLIV usage guide.
 
 ## Next Recommended Step
@@ -38,3 +38,11 @@ Port the existing prototype logic into these files in this order:
 PyMOL plugins can be installed from a directory or a zip archive whose root
 contains an `__init__.py` plugin entrypoint. In this repo, that installable root
 is the `maestro_pro_plugin/` directory.
+
+## License
+
+This repository does not include a `LICENSE` file yet.
+
+Until a license is selected and added, this project is shared publicly for
+visibility and collaboration, but it is not currently offered under a reuse
+license.
