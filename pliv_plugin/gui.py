@@ -166,13 +166,13 @@ class PLIVDialog(QtWidgets.QDialog):
 
         action_group = QtWidgets.QGroupBox("Actions")
         action_layout = QtWidgets.QVBoxLayout(action_group)
-        button_run = QtWidgets.QPushButton("Run Analysis")
-        button_run.setStyleSheet(
+        self.button_run = QtWidgets.QPushButton("Run Analysis")
+        self.button_run.setStyleSheet(
             "background-color: #16a34a; color: white; font-weight: bold; min-height: 40px; "
             "border-radius: 8px;"
         )
-        button_run.clicked.connect(self.controller.run_analysis)
-        action_layout.addWidget(button_run)
+        self.button_run.clicked.connect(self.controller.run_analysis)
+        action_layout.addWidget(self.button_run)
 
         secondary_actions = QtWidgets.QHBoxLayout()
         button_publication = QtWidgets.QPushButton("Apply Publication Style")
@@ -341,6 +341,10 @@ class PLIVDialog(QtWidgets.QDialog):
     def log(self, message: str) -> None:
         self.status_box.appendPlainText(message)
 
+    def set_run_analysis_enabled(self, enabled: bool, reason: Optional[str] = None) -> None:
+        self.button_run.setEnabled(enabled)
+        self.button_run.setToolTip(reason or "")
+
 
 class PLIVController:
     """Coordinates the GUI, engine, and renderer."""
@@ -354,6 +358,16 @@ class PLIVController:
         self._last_summary = None
         self._publication_active = False
         self.refresh_objects()
+
+        dependency_issue = self.engine.dependency_issue()
+        if dependency_issue is not None:
+            message = (
+                dependency_issue
+                + "\n\nPLIV requires a working NumPy installation in the same Python interpreter that PyMOL is using."
+            )
+            self.dialog.set_run_analysis_enabled(False, message)
+            self.dialog.log(message)
+            QtWidgets.QMessageBox.warning(self.dialog, "PLIV Dependency Issue", message)
 
     def show(self) -> None:
         self.dialog.show()
@@ -426,8 +440,8 @@ class PLIVController:
             names = self.engine.list_receptor_objects()
             noun = "receptor object"
         else:
-            names = self.engine.list_complex_objects()
-            noun = "candidate object"
+            names = self.engine.list_receptor_objects()
+            noun = "protein-containing object"
         self.dialog.set_complexes(names)
         self.dialog.log(f"Loaded {len(names)} {noun}(s).")
 
@@ -468,6 +482,12 @@ class PLIVController:
 
         if not interaction_types:
             self.dialog.log("Enable at least one interaction family.")
+            return
+
+        if input_mode == "complex" and int(self.engine.cmd.count_atoms(f"({complex_name}) and polymer.protein")) == 0:
+            self.dialog.log(
+                "The selected object does not contain protein atoms. If the ligand was loaded as a separate PDB object, use Docking Receptor + Ligand Objects mode."
+            )
             return
 
         self.engine.cmd.set("valence", 0)

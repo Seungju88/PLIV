@@ -77,9 +77,12 @@ class InteractionRenderer:
         self.cmd.show("sticks", request.ligand_selection)
         self.cmd.util.cbag(request.ligand_selection)
         self._hide_nonpolar_hydrogens(request)
-        self.cmd.group(
+        # group expects object or selection names, not raw atom-selection expressions.
+        # Keep the plugin-owned group limited to plugin-owned named selections/objects
+        # so the same code path works across stricter PyMOL builds.
+        self._group_members(
             request.group_name,
-            f"{request.pocket_selection} {request.water_selection} {request.ion_selection} {request.ligand_selection}",
+            [request.pocket_selection, request.water_selection, request.ion_selection],
         )
         self._show_nearby_ions(request)
         self.render_summary_interactions(request, summary)

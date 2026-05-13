@@ -4,9 +4,15 @@ from __future__ import annotations
 
 from collections import Counter
 import re
+import sys
 from typing import Dict, List, Optional, Sequence, Tuple
 
-import numpy as np
+try:
+    import numpy as np
+    _NUMPY_IMPORT_ERROR = None
+except Exception as exc:  # pragma: no cover - depends on local Python runtime
+    np = None
+    _NUMPY_IMPORT_ERROR = exc
 
 from .config import ConfigManager
 from .models import AnalysisRequest, AnalysisSummary, InteractionRecord, LigandTarget
@@ -52,6 +58,23 @@ class InteractionEngine:
     def __init__(self, config: ConfigManager, cmd_api=None) -> None:
         self.config = config
         self.cmd = cmd_api or _default_cmd_api()
+
+    def dependency_issue(self) -> Optional[str]:
+        if _NUMPY_IMPORT_ERROR is None:
+            return None
+        return (
+            "NumPy could not be imported in the Python environment used by PyMOL. "
+            f"Interpreter: {sys.executable}. Original error: {_NUMPY_IMPORT_ERROR}"
+        )
+
+    def ensure_dependencies(self) -> None:
+        issue = self.dependency_issue()
+        if issue is None:
+            return
+        raise RuntimeError(
+            issue
+            + " PLIV requires a working NumPy installation for interaction geometry."
+        )
 
     def list_complex_objects(self) -> List[str]:
         prefixes = self.config.get("render", "cleanup_prefixes", default=[])
@@ -169,6 +192,7 @@ class InteractionEngine:
         )
 
     def run_analysis(self, request: AnalysisRequest) -> AnalysisSummary:
+        self.ensure_dependencies()
         self.prepare_environment(request)
 
         ligand_atom_count = int(self.cmd.count_atoms(request.ligand_selection))

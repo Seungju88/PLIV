@@ -39,6 +39,26 @@ PyMOL plugins can be installed from a directory or a zip archive whose root
 contains an `__init__.py` plugin entrypoint. In this repo, that installable root
 is the `pliv_plugin/` directory.
 
+## Troubleshooting
+
+### NumPy import errors on another PC
+
+PLIV currently requires a working `NumPy` installation in the same Python
+interpreter that `PyMOL` is using. If the plugin shows an error such as
+`Importing the numpy C-extensions failed` or `DLL load failed while importing
+_multiarray_umath`, the issue is usually the local Python environment rather
+than PLIV itself.
+
+Quick checks:
+
+1. Confirm which Python interpreter PyMOL is using.
+2. In that exact interpreter, confirm `import numpy` works.
+3. If it fails, reinstall NumPy in that environment and avoid mixing PyMOL
+   with a broken or incompatible Anaconda environment.
+
+Recent PLIV builds show a clearer dependency warning and disable `Run Analysis`
+when NumPy is unavailable, so the failure mode is easier to diagnose.
+
 ## License
 
 This repository does not include a `LICENSE` file yet.
