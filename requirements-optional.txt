@@ -1,0 +1,7 @@
+# Optional Python dependencies for PLIV features beyond the core
+# interaction-analysis workflow.
+
+# Batch Export -> Save DOCX Report
+# Latest python-docx releases are 1.x. pip will resolve a compatible
+# version for the Python interpreter used by PyMOL when possible.
+python-docx>=1.0,<2

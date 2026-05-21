@@ -35,16 +35,15 @@ class InteractionRenderer:
         self.config = config
         self.cmd = cmd_api or _default_cmd_api()
         self._stored_global_settings: dict[str, dict[str, str]] = {}
+        self._stored_viewpoints: dict[int, tuple[float, ...]] = {}
 
-    def store_view_state(self, request: AnalysisRequest) -> str:
-        scene_name = self._publication_scene_name(request)
+    def store_scene(self, scene_name: str) -> str:
         self._stored_global_settings[scene_name] = self._capture_global_visual_settings()
         self.cmd.refresh()
         self.cmd.scene(scene_name, "store", "", 1, 1, 1, 1, 1)
         return scene_name
 
-    def restore_view_state(self, request: AnalysisRequest) -> bool:
-        scene_name = self._publication_scene_name(request)
+    def restore_scene(self, scene_name: str) -> bool:
         try:
             self.cmd.scene(scene_name, "recall")
             self._restore_global_visual_settings(self._stored_global_settings.get(scene_name, {}))
@@ -53,18 +52,65 @@ class InteractionRenderer:
         except Exception:
             return False
 
+    def clear_scene(self, scene_name: str) -> None:
+        self._stored_global_settings.pop(scene_name, None)
+        try:
+            self.cmd.scene(scene_name, "clear")
+        except Exception:
+            return
+
+    def store_view_state(self, request: AnalysisRequest) -> str:
+        scene_name = self._publication_scene_name(request)
+        return self.store_scene(scene_name)
+
+    def restore_view_state(self, request: AnalysisRequest) -> bool:
+        scene_name = self._publication_scene_name(request)
+        return self.restore_scene(scene_name)
+
     def store_viewpoint(self, slot: int) -> str:
         view_name = self._viewpoint_name(slot)
-        self.cmd.view(view_name, "store")
+        self._stored_viewpoints[int(slot)] = tuple(float(value) for value in self.cmd.get_view())
         return view_name
 
     def restore_viewpoint(self, slot: int) -> bool:
-        view_name = self._viewpoint_name(slot)
+        stored_view = self._stored_viewpoints.get(int(slot))
+        if stored_view is None:
+            return False
         try:
-            self.cmd.view(view_name, "recall")
+            self.cmd.set_view(list(stored_view))
+            self.cmd.refresh()
             return True
         except Exception:
             return False
+
+    def clear_viewpoints(self) -> None:
+        self._stored_viewpoints.clear()
+
+    def serialize_viewpoints(self) -> dict[str, list[float]]:
+        return {
+            str(slot): [float(value) for value in view]
+            for slot, view in sorted(self._stored_viewpoints.items())
+        }
+
+    def load_serialized_viewpoints(self, payload: Any) -> int:
+        self._stored_viewpoints.clear()
+        if not isinstance(payload, Mapping):
+            return 0
+
+        restored = 0
+        for slot, raw_view in payload.items():
+            if not isinstance(raw_view, Sequence) or isinstance(raw_view, (str, bytes)):
+                continue
+            try:
+                parsed_slot = int(slot)
+                parsed_view = tuple(float(value) for value in raw_view)
+            except Exception:
+                continue
+            if not parsed_view:
+                continue
+            self._stored_viewpoints[parsed_slot] = parsed_view
+            restored += 1
+        return restored
 
     def clear_plugin_objects(self) -> None:
         for prefix in self.config.get("render", "cleanup_prefixes", default=[]):

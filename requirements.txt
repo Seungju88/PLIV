@@ -1,0 +1,5 @@
+# Core Python dependencies used by PLIV inside the Python interpreter
+# that PyMOL is using. PyMOL itself is the host application dependency
+# and is not installed from pip here.
+
+numpy>=1.20,<3

@@ -155,7 +155,7 @@ PLIV가 만든 helper selection, dash object, temporary object를 지운다.
 
 ## 8. Session / Export 탭
 
-### 8.1 Export PNG
+### 8.1 Save Image
 
 현재 PyMOL 화면을 PNG로 저장한다.
 
@@ -170,7 +170,7 @@ PyMOL session 파일을 저장한다. 동시에 아래 정보도 sidecar metadat
 - 마지막 분석 request
 - 마지막 분석 summary
 
-### 8.3 Open Session
+### 8.3 Load Session
 
 저장한 PyMOL session을 불러온다. PLIV metadata가 함께 있으면 아래 정보도
 복원된다.
@@ -180,8 +180,26 @@ PyMOL session 파일을 저장한다. 동시에 아래 정보도 sidecar metadat
 - 마지막 분석 context
 - selection mode
 
-즉 `Open Session` 뒤에도 `Apply Publication Style` 같은 기능이 바로 이어질 수
+즉 `Load Session` 뒤에도 `Apply Publication Style` 같은 기능이 바로 이어질 수
 있도록 설계되어 있다.
+
+### 8.4 Batch Export
+
+저장된 `Saved View 1~5`를 이용해 현재 PLIV visualization state를 여러 장의 PNG로
+일괄 저장한다.
+
+현재 1차 구현에서 지원하는 항목은 다음과 같다.
+
+- 사용할 view slot 선택
+- `Current visible state`, `Working view`, `Publication style` 선택
+- `ray trace`, width, height, dpi 지정
+- output folder 선택
+- export manifest JSON 저장
+- `Save DOCX Report`로 batch 결과를 Word 보고서로 정리
+
+DOCX 보고서는 batch export에서 생성된 PNG 세트를 문서에 삽입하는 방식으로 만들어진다.
+현재 구현은 `python-docx`가 PyMOL이 사용하는 Python 환경에 설치되어 있을 때 동작한다.
+설치되어 있지 않으면 PLIV가 의존성 안내 메시지를 표시한다.
 
 ## 9. 권장 사용 시나리오
 
@@ -194,7 +212,9 @@ PyMOL session 파일을 저장한다. 동시에 아래 정보도 sidecar metadat
 5. `Run Analysis`
 6. 필요하면 색상 조정
 7. `Apply Publication Style`
-8. `Export PNG`
+8. 필요하면 `Save View`로 시점을 저장
+9. `Batch Export`로 saved view 기반 PNG 세트 출력
+10. 필요하면 `Save DOCX Report`로 이미지 세트를 Word 문서로 정리
 
 ### 9.2 Docking pose 검토
 

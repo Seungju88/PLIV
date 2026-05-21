@@ -39,6 +39,20 @@ PyMOL plugins can be installed from a directory or a zip archive whose root
 contains an `__init__.py` plugin entrypoint. In this repo, that installable root
 is the `pliv_plugin/` directory.
 
+## Python Dependencies
+
+Core and optional Python package expectations are now tracked in:
+
+- `requirements.txt`
+- `requirements-optional.txt`
+
+Notes:
+
+- `NumPy` is required for PLIV interaction geometry.
+- `python-docx` is only needed for `Batch Export -> Save DOCX Report`.
+- `PyMOL` itself is not managed through `pip` in these files because it is the
+  host application/runtime for the plugin.
+
 ## Troubleshooting
 
 ### NumPy import errors on another PC
