@@ -25,8 +25,8 @@ class PLIVDialog(QtWidgets.QDialog):
         super().__init__()
         self.controller = controller
         self.setWindowTitle("PLIV - Protein-Ligand Interaction Visualizer")
-        self.setGeometry(300, 220, 560, 760)
-        self.setMinimumSize(540, 700)
+        self.setGeometry(260, 180, 820, 860)
+        self.setMinimumSize(760, 760)
         self._build_ui()
 
     def _build_ui(self) -> None:
@@ -48,13 +48,14 @@ class PLIVDialog(QtWidgets.QDialog):
         def wrap_in_scroll(widget: QtWidgets.QWidget) -> QtWidgets.QScrollArea:
             scroll_area = QtWidgets.QScrollArea()
             scroll_area.setWidgetResizable(True)
+            scroll_area.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
             scroll_area.setFrameShape(QtWidgets.QFrame.NoFrame)
             scroll_area.setWidget(widget)
             return scroll_area
 
         analyze_page, analyze_layout = make_tab()
+        capture_page, capture_layout = make_tab()
         session_page, session_layout = make_tab()
-        view_page, view_layout = make_tab()
 
         selection_group = QtWidgets.QGroupBox("Selections")
         selection_layout = QtWidgets.QVBoxLayout(selection_group)
@@ -152,109 +153,6 @@ class PLIVDialog(QtWidgets.QDialog):
         controls_layout.addLayout(interaction_grid)
         analyze_layout.addWidget(controls_group)
 
-        save_image_group = QtWidgets.QGroupBox("Save Image")
-        save_image_layout = QtWidgets.QVBoxLayout(save_image_group)
-        save_image_hint = QtWidgets.QLabel(
-            "Save the current PyMOL viewport as a PNG image for quick figure capture."
-        )
-        save_image_hint.setWordWrap(True)
-        save_image_layout.addWidget(save_image_hint)
-
-        button_save_image = QtWidgets.QPushButton("Save Image")
-        button_save_image.clicked.connect(self.controller.save_image)
-        save_image_layout.addWidget(button_save_image)
-        session_layout.addWidget(save_image_group)
-
-        session_group = QtWidgets.QGroupBox("Session Files")
-        session_group_layout = QtWidgets.QVBoxLayout(session_group)
-        session_hint = QtWidgets.QLabel(
-            "Save or load a PyMOL session together with window size and analysis context."
-        )
-        session_hint.setWordWrap(True)
-        session_group_layout.addWidget(session_hint)
-
-        session_button_grid = QtWidgets.QGridLayout()
-        button_save_session = QtWidgets.QPushButton("Save Session")
-        button_save_session.clicked.connect(self.controller.save_session)
-        session_button_grid.addWidget(button_save_session, 0, 0)
-
-        button_load_session = QtWidgets.QPushButton("Load Session")
-        button_load_session.clicked.connect(self.controller.load_session)
-        session_button_grid.addWidget(button_load_session, 0, 1)
-        session_group_layout.addLayout(session_button_grid)
-        session_layout.addWidget(session_group)
-
-        batch_group = QtWidgets.QGroupBox("Batch Export")
-        batch_layout = QtWidgets.QVBoxLayout(batch_group)
-        batch_hint = QtWidgets.QLabel(
-            "Use saved views 1-5 to export ligand figures. In docking mode, batch export uses all ligand objects selected in the Analyze tab."
-        )
-        batch_hint.setWordWrap(True)
-        batch_layout.addWidget(batch_hint)
-
-        batch_views_row = QtWidgets.QHBoxLayout()
-        batch_views_row.addWidget(QtWidgets.QLabel("Saved Views"))
-        self.batch_view_checks = {}
-        for slot in range(1, 6):
-            checkbox = QtWidgets.QCheckBox(str(slot))
-            self.batch_view_checks[slot] = checkbox
-            batch_views_row.addWidget(checkbox)
-        batch_views_row.addStretch(1)
-        batch_layout.addLayout(batch_views_row)
-
-        batch_style_row = QtWidgets.QHBoxLayout()
-        batch_style_row.addWidget(QtWidgets.QLabel("Style"))
-        self.batch_style_combo = QtWidgets.QComboBox()
-        self.batch_style_combo.addItem("Current visible state", "current")
-        self.batch_style_combo.addItem("Working view", "working")
-        self.batch_style_combo.addItem("Publication style", "publication")
-        batch_style_row.addWidget(self.batch_style_combo, 1)
-        batch_layout.addLayout(batch_style_row)
-
-        batch_render_grid = QtWidgets.QGridLayout()
-        self.batch_ray_checkbox = QtWidgets.QCheckBox("Ray trace")
-        self.batch_ray_checkbox.setChecked(True)
-        batch_render_grid.addWidget(self.batch_ray_checkbox, 0, 0)
-        batch_render_grid.addWidget(QtWidgets.QLabel("Width"), 0, 1)
-        self.batch_width_spin = QtWidgets.QSpinBox()
-        self.batch_width_spin.setRange(320, 7680)
-        self.batch_width_spin.setSingleStep(160)
-        self.batch_width_spin.setValue(1920)
-        batch_render_grid.addWidget(self.batch_width_spin, 0, 2)
-        batch_render_grid.addWidget(QtWidgets.QLabel("Height"), 0, 3)
-        self.batch_height_spin = QtWidgets.QSpinBox()
-        self.batch_height_spin.setRange(240, 4320)
-        self.batch_height_spin.setSingleStep(120)
-        self.batch_height_spin.setValue(1440)
-        batch_render_grid.addWidget(self.batch_height_spin, 0, 4)
-        batch_render_grid.addWidget(QtWidgets.QLabel("DPI"), 0, 5)
-        self.batch_dpi_spin = QtWidgets.QSpinBox()
-        self.batch_dpi_spin.setRange(72, 1200)
-        self.batch_dpi_spin.setValue(300)
-        batch_render_grid.addWidget(self.batch_dpi_spin, 0, 6)
-        batch_layout.addLayout(batch_render_grid)
-
-        batch_output_row = QtWidgets.QHBoxLayout()
-        batch_output_row.addWidget(QtWidgets.QLabel("Output Folder"))
-        self.batch_output_dir_edit = QtWidgets.QLineEdit()
-        self.batch_output_dir_edit.setReadOnly(True)
-        batch_output_row.addWidget(self.batch_output_dir_edit, 1)
-        button_batch_output = QtWidgets.QPushButton("Choose Folder")
-        button_batch_output.clicked.connect(self.controller.choose_batch_output_directory)
-        batch_output_row.addWidget(button_batch_output)
-        batch_layout.addLayout(batch_output_row)
-
-        batch_action_row = QtWidgets.QHBoxLayout()
-        button_batch_export = QtWidgets.QPushButton("Run Batch Export")
-        button_batch_export.clicked.connect(self.controller.run_batch_export)
-        batch_action_row.addWidget(button_batch_export)
-
-        button_batch_docx = QtWidgets.QPushButton("Save DOCX Report")
-        button_batch_docx.clicked.connect(self.controller.save_batch_docx_report)
-        batch_action_row.addWidget(button_batch_docx)
-        batch_layout.addLayout(batch_action_row)
-        session_layout.addWidget(batch_group)
-
         action_group = QtWidgets.QGroupBox("Actions")
         action_layout = QtWidgets.QVBoxLayout(action_group)
         self.button_run = QtWidgets.QPushButton("Run Analysis")
@@ -289,33 +187,163 @@ class PLIVDialog(QtWidgets.QDialog):
         analyze_layout.addWidget(action_group)
 
         viewpoint_group = QtWidgets.QGroupBox("Saved Views")
-        viewpoint_layout = QtWidgets.QGridLayout(viewpoint_group)
+        viewpoint_group_layout = QtWidgets.QVBoxLayout(viewpoint_group)
+        view_hint = QtWidgets.QLabel(
+            "Saved views store only camera position and zoom. They are reused by Batch Export and report generation."
+        )
+        view_hint.setWordWrap(True)
+        viewpoint_group_layout.addWidget(view_hint)
+
+        viewpoint_button_grid = QtWidgets.QGridLayout()
+        viewpoint_button_grid.setHorizontalSpacing(8)
+        viewpoint_button_grid.setVerticalSpacing(8)
         for slot in range(1, 6):
-            save_button = QtWidgets.QPushButton(f"Save View {slot}")
+            save_button = QtWidgets.QPushButton(f"Save {slot}")
+            save_button.setMinimumHeight(34)
+            save_button.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
             save_button.clicked.connect(
                 lambda _checked=False, selected_slot=slot: self.controller.store_viewpoint(selected_slot)
             )
-            viewpoint_layout.addWidget(save_button, 0, slot - 1)
+            viewpoint_button_grid.addWidget(save_button, 0, slot - 1)
 
-            load_button = QtWidgets.QPushButton(f"Load View {slot}")
+            load_button = QtWidgets.QPushButton(f"Load {slot}")
+            load_button.setMinimumHeight(34)
+            load_button.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
             load_button.clicked.connect(
                 lambda _checked=False, selected_slot=slot: self.controller.restore_viewpoint(selected_slot)
             )
-            viewpoint_layout.addWidget(load_button, 1, slot - 1)
-        view_hint = QtWidgets.QLabel(
-            "Saved views restore only the camera position and zoom, not the full visualization state."
+            viewpoint_button_grid.addWidget(load_button, 1, slot - 1)
+        viewpoint_group_layout.addLayout(viewpoint_button_grid)
+        capture_layout.addWidget(viewpoint_group)
+
+        save_image_group = QtWidgets.QGroupBox("Save Image")
+        save_image_layout = QtWidgets.QVBoxLayout(save_image_group)
+        save_image_hint = QtWidgets.QLabel(
+            "Save the current PyMOL viewport as a PNG image for quick figure capture."
         )
-        view_hint.setWordWrap(True)
-        view_layout.addWidget(view_hint)
-        view_layout.addWidget(viewpoint_group)
+        save_image_hint.setWordWrap(True)
+        save_image_layout.addWidget(save_image_hint)
+
+        button_save_image = QtWidgets.QPushButton("Save Image")
+        button_save_image.clicked.connect(self.controller.save_image)
+        save_image_layout.addWidget(button_save_image)
+        capture_layout.addWidget(save_image_group)
+
+        batch_group = QtWidgets.QGroupBox("Batch Export")
+        batch_layout = QtWidgets.QVBoxLayout(batch_group)
+        batch_hint = QtWidgets.QLabel(
+            "Use saved views to export ligand figures. In docking mode, batch export uses the ligand objects selected in Analyze."
+        )
+        batch_hint.setWordWrap(True)
+        batch_layout.addWidget(batch_hint)
+
+        batch_views_row = QtWidgets.QHBoxLayout()
+        batch_views_row.addWidget(QtWidgets.QLabel("Views"))
+        self.batch_view_checks = {}
+        for slot in range(1, 6):
+            checkbox = QtWidgets.QCheckBox(str(slot))
+            self.batch_view_checks[slot] = checkbox
+            batch_views_row.addWidget(checkbox)
+        batch_views_row.addStretch(1)
+        batch_layout.addLayout(batch_views_row)
+
+        batch_style_row = QtWidgets.QHBoxLayout()
+        batch_style_row.addWidget(QtWidgets.QLabel("Style"))
+        self.batch_style_combo = QtWidgets.QComboBox()
+        self.batch_style_combo.addItem("Current visible state", "current")
+        self.batch_style_combo.addItem("Working view", "working")
+        self.batch_style_combo.addItem("Publication style", "publication")
+        batch_style_row.addWidget(self.batch_style_combo, 1)
+        batch_layout.addLayout(batch_style_row)
+
+        batch_render_grid = QtWidgets.QGridLayout()
+        batch_render_grid.setHorizontalSpacing(10)
+        batch_render_grid.setVerticalSpacing(8)
+        self.batch_ray_checkbox = QtWidgets.QCheckBox("Ray trace")
+        self.batch_ray_checkbox.setChecked(True)
+        batch_render_grid.addWidget(self.batch_ray_checkbox, 0, 0, 1, 2)
+        batch_render_grid.addWidget(QtWidgets.QLabel("DPI"), 0, 2)
+        self.batch_dpi_spin = QtWidgets.QSpinBox()
+        self.batch_dpi_spin.setRange(72, 1200)
+        self.batch_dpi_spin.setValue(300)
+        self.batch_dpi_spin.setMinimumWidth(90)
+        batch_render_grid.addWidget(self.batch_dpi_spin, 0, 3)
+        batch_render_grid.addWidget(QtWidgets.QLabel("Width"), 1, 0)
+        self.batch_width_spin = QtWidgets.QSpinBox()
+        self.batch_width_spin.setRange(320, 7680)
+        self.batch_width_spin.setSingleStep(160)
+        self.batch_width_spin.setValue(1920)
+        self.batch_width_spin.setMinimumWidth(110)
+        batch_render_grid.addWidget(self.batch_width_spin, 1, 1)
+        batch_render_grid.addWidget(QtWidgets.QLabel("Height"), 1, 2)
+        self.batch_height_spin = QtWidgets.QSpinBox()
+        self.batch_height_spin.setRange(240, 4320)
+        self.batch_height_spin.setSingleStep(120)
+        self.batch_height_spin.setValue(1440)
+        self.batch_height_spin.setMinimumWidth(110)
+        batch_render_grid.addWidget(self.batch_height_spin, 1, 3)
+        batch_layout.addLayout(batch_render_grid)
+
+        batch_layout.addWidget(QtWidgets.QLabel("Output Folder"))
+        batch_output_row = QtWidgets.QHBoxLayout()
+        self.batch_output_dir_edit = QtWidgets.QLineEdit()
+        self.batch_output_dir_edit.setReadOnly(True)
+        batch_output_row.addWidget(self.batch_output_dir_edit, 1)
+        button_batch_output = QtWidgets.QPushButton("Choose Folder")
+        button_batch_output.clicked.connect(self.controller.choose_batch_output_directory)
+        batch_output_row.addWidget(button_batch_output)
+        batch_layout.addLayout(batch_output_row)
+
+        button_batch_export = QtWidgets.QPushButton("Run Batch Export")
+        button_batch_export.clicked.connect(self.controller.run_batch_export)
+        batch_layout.addWidget(button_batch_export)
+        capture_layout.addWidget(batch_group)
+
+        report_group = QtWidgets.QGroupBox("Report Export")
+        report_layout = QtWidgets.QVBoxLayout(report_group)
+        report_hint = QtWidgets.QLabel(
+            "Generate Word or PowerPoint reports from the current batch settings and saved views."
+        )
+        report_hint.setWordWrap(True)
+        report_layout.addWidget(report_hint)
+
+        report_button_row = QtWidgets.QHBoxLayout()
+        button_batch_docx = QtWidgets.QPushButton("Save DOCX Report")
+        button_batch_docx.clicked.connect(self.controller.save_batch_docx_report)
+        report_button_row.addWidget(button_batch_docx)
+
+        button_batch_pptx = QtWidgets.QPushButton("Save PPTX Report")
+        button_batch_pptx.clicked.connect(self.controller.save_batch_pptx_report)
+        report_button_row.addWidget(button_batch_pptx)
+        report_layout.addLayout(report_button_row)
+        capture_layout.addWidget(report_group)
+
+        session_group = QtWidgets.QGroupBox("Session Files")
+        session_group_layout = QtWidgets.QVBoxLayout(session_group)
+        session_hint = QtWidgets.QLabel(
+            "Save or load a PyMOL session together with window size, saved views, and analysis context."
+        )
+        session_hint.setWordWrap(True)
+        session_group_layout.addWidget(session_hint)
+
+        session_button_grid = QtWidgets.QGridLayout()
+        button_save_session = QtWidgets.QPushButton("Save Session")
+        button_save_session.clicked.connect(self.controller.save_session)
+        session_button_grid.addWidget(button_save_session, 0, 0)
+
+        button_load_session = QtWidgets.QPushButton("Load Session")
+        button_load_session.clicked.connect(self.controller.load_session)
+        session_button_grid.addWidget(button_load_session, 0, 1)
+        session_group_layout.addLayout(session_button_grid)
+        session_layout.addWidget(session_group)
 
         analyze_layout.addStretch(1)
+        capture_layout.addStretch(1)
         session_layout.addStretch(1)
-        view_layout.addStretch(1)
 
         tab_widget.addTab(wrap_in_scroll(analyze_page), "Analyze")
-        tab_widget.addTab(wrap_in_scroll(session_page), "Session / Export")
-        tab_widget.addTab(wrap_in_scroll(view_page), "View")
+        tab_widget.addTab(wrap_in_scroll(capture_page), "Capture")
+        tab_widget.addTab(wrap_in_scroll(session_page), "Session")
 
         status_group = QtWidgets.QGroupBox("Status Log")
         status_layout = QtWidgets.QVBoxLayout(status_group)
@@ -326,7 +354,7 @@ class PLIVDialog(QtWidgets.QDialog):
         splitter.addWidget(status_group)
         splitter.setStretchFactor(0, 4)
         splitter.setStretchFactor(1, 2)
-        splitter.setSizes([540, 220])
+        splitter.setSizes([640, 220])
         layout.addWidget(splitter)
 
     def _on_complex_selected(self, item: QtWidgets.QListWidgetItem) -> None:
@@ -658,7 +686,6 @@ class PLIVController:
             return
 
         self.engine.cmd.set("valence", 0)
-        self.renderer.clear_plugin_objects()
         request = self.engine.build_request(
             complex_name=complex_name,
             ligand=ligand,
@@ -666,8 +693,11 @@ class PLIVController:
             profile_name=profile_name,
             input_mode=input_mode,
         )
+        color_state = self._capture_request_color_state(request)
+        self.renderer.clear_plugin_objects()
         summary = self.engine.run_analysis(request)
         self.renderer.render_working_view(request, summary)
+        self._restore_request_color_state(request, color_state)
         self._last_request = request
         self._last_summary = summary
         self._publication_active = False
@@ -695,9 +725,11 @@ class PLIVController:
             self.dialog.log("Run an analysis first so the publication preset has a target.")
             return
 
+        color_state = self._capture_request_color_state(self._last_request)
         if not self._publication_active:
             self.renderer.store_view_state(self._last_request)
         self.renderer.apply_publication_view(self._last_request, self._last_summary)
+        self._restore_request_color_state(self._last_request, color_state)
         self._publication_active = True
         self.dialog.log("Applied publication view preset.")
 
@@ -723,6 +755,118 @@ class PLIVController:
     def clear_ligand_selection(self) -> None:
         self.dialog.clear_ligand_selection()
         self.dialog.log("Cleared ligand selection.")
+
+    def _capture_request_color_state(self, request: AnalysisRequest) -> dict[str, dict[tuple[str, int], int]]:
+        return {
+            "protein": self.renderer.capture_selection_colors(request.protein_selection),
+            "ligand": self.renderer.capture_selection_colors(request.ligand_selection),
+        }
+
+    def _restore_request_color_state(
+        self,
+        request: AnalysisRequest,
+        color_state: dict[str, dict[tuple[str, int], int]] | None,
+    ) -> None:
+        if not color_state:
+            return
+        self.renderer.restore_selection_colors(request.protein_selection, color_state.get("protein"))
+        self.renderer.restore_selection_colors(request.ligand_selection, color_state.get("ligand"))
+
+    def _resolve_report_template_path(self, format_name: str) -> Optional[Path]:
+        configured_path = self.config.resolve_path(self.config.get("reporting", format_name, "template", default=""))
+        if configured_path is None:
+            return None
+        if configured_path.exists():
+            return configured_path
+        self.dialog.log(
+            f"Configured {format_name.upper()} template was not found at {configured_path}. Using the built-in fallback format."
+        )
+        return None
+
+    def _report_title(self, format_name: str, default: str = "PLIV Batch Export Report") -> str:
+        return str(self.config.get("reporting", format_name, "title", default=default))
+
+    def _docx_image_width_inches(self) -> float:
+        return float(self.config.get("reporting", "docx", "image_width_inches", default=6.5))
+
+    def _docx_page_break_between_targets(self) -> bool:
+        return bool(self.config.get("reporting", "docx", "page_break_between_targets", default=True))
+
+    def _pptx_layout(self, presentation, config_key: str, default_index: int):
+        slide_layouts = presentation.slide_layouts
+        if len(slide_layouts) == 0:
+            raise ValueError("The PowerPoint template does not contain any slide layouts.")
+
+        requested_index = int(self.config.get("reporting", "pptx", config_key, default=default_index))
+        if 0 <= requested_index < len(slide_layouts):
+            return slide_layouts[requested_index]
+
+        fallback_index = min(max(default_index, 0), len(slide_layouts) - 1)
+        self.dialog.log(
+            f"PPTX layout index {requested_index} for {config_key} is unavailable; using layout {fallback_index} instead."
+        )
+        return slide_layouts[fallback_index]
+
+    def _pptx_images_per_slide(self) -> int:
+        requested = int(self.config.get("reporting", "pptx", "images_per_slide", default=4))
+        return max(1, min(6, requested))
+
+    def _pptx_grid_dimensions(self, image_count: int) -> tuple[int, int]:
+        if image_count <= 1:
+            return 1, 1
+        if image_count == 2:
+            return 1, 2
+        if image_count <= 4:
+            return 2, 2
+        return 2, 3
+
+    def _pptx_set_slide_title(self, slide, title: str, Inches, Pt):
+        title_shape = slide.shapes.title
+        if title_shape is not None:
+            title_shape.text = title
+            return title_shape
+
+        textbox = slide.shapes.add_textbox(
+            Inches(0.6),
+            Inches(0.25),
+            Inches(12.1),
+            Inches(0.5),
+        )
+        frame = textbox.text_frame
+        frame.text = title
+        frame.paragraphs[0].font.size = Pt(24)
+        return textbox
+
+    def _pptx_set_title_slide_text(self, slide, title: str, subtitle: str, Inches, Pt) -> None:
+        title_shape = self._pptx_set_slide_title(slide, title, Inches, Pt)
+        subtitle_placeholder = None
+        for shape in slide.placeholders:
+            if shape is title_shape:
+                continue
+            if getattr(shape, 'has_text_frame', False):
+                subtitle_placeholder = shape
+                break
+        if subtitle_placeholder is not None:
+            subtitle_placeholder.text = subtitle
+            return
+
+        textbox = slide.shapes.add_textbox(
+            Inches(0.8),
+            Inches(1.6),
+            Inches(11.8),
+            Inches(2.2),
+        )
+        frame = textbox.text_frame
+        frame.word_wrap = True
+        frame.text = subtitle
+        frame.paragraphs[0].font.size = Pt(14)
+
+    def _docx_add_notes(self, document, notes: list[str]) -> None:
+        for note in notes:
+            try:
+                document.add_paragraph(note, style="List Bullet")
+            except Exception:
+                document.add_paragraph(f"- {note}")
 
     def choose_batch_output_directory(self) -> None:
         start_dir = self.dialog.batch_output_directory() or str(self._default_directory())
@@ -951,12 +1095,14 @@ class PLIVController:
                 self.engine.cmd.set("valence", 0)
                 for ligand in ligands:
                     request = self._build_batch_request(settings, ligand)
+                    color_state = self._capture_request_color_state(request)
                     try:
                         self.renderer.clear_plugin_objects()
                         summary = self.engine.run_analysis(request)
                         self.renderer.render_working_view(request, summary)
                         if style == "publication":
                             self.renderer.apply_publication_view(request, summary)
+                        self._restore_request_color_state(request, color_state)
                     except Exception as exc:
                         error_message = str(exc)
                         self.dialog.log(f"Skipped {ligand.label}: {error_message}")
@@ -1013,11 +1159,28 @@ class PLIVController:
         self.dialog.log(f"Saved batch export manifest to {manifest_path}.")
         return timestamp, manifest_path, manifest_payload, exported_count
 
+    def _prepare_batch_bundle_directory(self, base_directory: Path, bundle_name: str) -> Path:
+        bundle_dir = base_directory / bundle_name
+        bundle_dir.mkdir(parents=True, exist_ok=True)
+        return bundle_dir
+
     def run_batch_export(self) -> None:
         settings = self._collect_batch_export_settings()
         if settings is None:
             return
-        _timestamp, _manifest_path, manifest_payload, exported_count = self._execute_batch_export(settings)
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        bundle_dir = self._prepare_batch_bundle_directory(
+            Path(settings["output_dir"]),
+            self._suggested_batch_bundle_name(str(settings["batch_token"]), timestamp),
+        )
+        export_settings = dict(settings)
+        export_settings["output_dir"] = bundle_dir
+        self.dialog.log(f"Created batch export directory at {bundle_dir}.")
+        _timestamp, _manifest_path, manifest_payload, exported_count = self._execute_batch_export(
+            export_settings,
+            timestamp=timestamp,
+        )
         self.dialog.log(
             f"Batch export complete: {exported_count} image(s) across {manifest_payload['target_count']} ligand target(s)."
         )
@@ -1035,6 +1198,21 @@ class PLIVController:
             QtWidgets.QMessageBox.warning(self.dialog, "PLIV DOCX Dependency Issue", message)
             return None
         return Document, Inches
+
+    def _load_pptx_dependencies(self):
+        try:
+            from PIL import Image as PILImage
+            from pptx import Presentation
+            from pptx.util import Inches, Pt
+        except Exception as exc:
+            message = (
+                "PPTX report export requires python-pptx in the same Python interpreter that PyMOL is using. "
+                f"Interpreter: {sys.executable}. Original error: {exc}"
+            )
+            self.dialog.log(message)
+            QtWidgets.QMessageBox.warning(self.dialog, "PLIV PPTX Dependency Issue", message)
+            return None
+        return Presentation, Inches, Pt, PILImage
 
     def save_batch_docx_report(self) -> None:
         dependencies = self._load_docx_dependencies()
@@ -1059,9 +1237,14 @@ class PLIVController:
         report_path = Path(file_path)
         if report_path.suffix.lower() != ".docx":
             report_path = report_path.with_suffix(".docx")
+        bundle_dir = self._prepare_batch_bundle_directory(report_path.parent, report_path.stem)
+        report_path = bundle_dir / report_path.name
+        export_settings = dict(settings)
+        export_settings["output_dir"] = bundle_dir
+        self.dialog.log(f"Created DOCX export directory at {bundle_dir}.")
 
         _timestamp, manifest_path, manifest_payload, exported_count = self._execute_batch_export(
-            settings,
+            export_settings,
             timestamp=timestamp,
         )
         if exported_count == 0:
@@ -1070,8 +1253,11 @@ class PLIVController:
 
         try:
             Document, Inches = dependencies
-            document = Document()
-            document.add_heading("PLIV Batch Export Report", 0)
+            template_path = self._resolve_report_template_path("docx")
+            document = Document(str(template_path)) if template_path else Document()
+            if template_path is not None:
+                self.dialog.log(f"Using DOCX template from {template_path}.")
+            document.add_heading(self._report_title("docx"), 0)
             document.add_paragraph(f"Generated: {manifest_payload['generated_at']}")
             document.add_paragraph(f"Receptor / Complex: {manifest_payload['complex_name']}")
             document.add_paragraph(f"Selection mode: {manifest_payload['input_mode']}")
@@ -1115,8 +1301,7 @@ class PLIVController:
                 notes = [str(note) for note in target_entry.get("notes", [])]
                 if notes:
                     document.add_paragraph("Analysis Notes")
-                    for note in notes:
-                        document.add_paragraph(note, style="List Bullet")
+                    self._docx_add_notes(document, notes)
 
                 target_images = sorted(
                     entries_by_target.get(target_token, []),
@@ -1128,9 +1313,9 @@ class PLIVController:
                     for entry in target_images:
                         document.add_heading(f"View {entry['view_slot']}", level=2)
                         document.add_paragraph(f"Image file: {entry['file']}")
-                        document.add_picture(str(entry['file']), width=Inches(6.5))
+                        document.add_picture(str(entry['file']), width=Inches(self._docx_image_width_inches()))
 
-                if target_index < len(target_entries):
+                if self._docx_page_break_between_targets() and target_index < len(target_entries):
                     document.add_page_break()
 
             document.save(str(report_path))
@@ -1143,6 +1328,203 @@ class PLIVController:
             f"Batch export complete: {exported_count} image(s) across {manifest_payload['target_count']} ligand target(s)."
         )
         self.dialog.log(f"Saved DOCX report to {report_path}.")
+
+    def save_batch_pptx_report(self) -> None:
+        dependencies = self._load_pptx_dependencies()
+        if dependencies is None:
+            return
+
+        settings = self._collect_batch_export_settings()
+        if settings is None:
+            return
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        default_path = Path(settings["output_dir"]) / self._suggested_batch_pptx_report_name(
+            str(settings["batch_token"]),
+            timestamp,
+        )
+        file_path, _ = QtWidgets.QFileDialog.getSaveFileName(
+            self.dialog,
+            "Save PPTX Report",
+            str(default_path),
+            "PowerPoint Presentations (*.pptx)",
+        )
+        if not file_path:
+            return
+
+        report_path = Path(file_path)
+        if report_path.suffix.lower() != ".pptx":
+            report_path = report_path.with_suffix(".pptx")
+        bundle_dir = self._prepare_batch_bundle_directory(report_path.parent, report_path.stem)
+        report_path = bundle_dir / report_path.name
+        export_settings = dict(settings)
+        export_settings["output_dir"] = bundle_dir
+        self.dialog.log(f"Created PPTX export directory at {bundle_dir}.")
+
+        _timestamp, manifest_path, manifest_payload, exported_count = self._execute_batch_export(
+            export_settings,
+            timestamp=timestamp,
+        )
+        if exported_count == 0:
+            self.dialog.log("No images were exported, so the PPTX report was not created.")
+            return
+
+        try:
+            Presentation, Inches, Pt, PILImage = dependencies
+            template_path = self._resolve_report_template_path("pptx")
+            presentation = Presentation(str(template_path)) if template_path else Presentation()
+            if template_path is not None:
+                self.dialog.log(f"Using PPTX template from {template_path}.")
+            else:
+                presentation.slide_width = Inches(float(self.config.get("reporting", "pptx", "slide_width_inches", default=13.333)))
+                presentation.slide_height = Inches(float(self.config.get("reporting", "pptx", "slide_height_inches", default=7.5)))
+
+            title_layout = self._pptx_layout(presentation, "title_slide_layout", 0)
+            content_layout = self._pptx_layout(presentation, "content_slide_layout", 5)
+
+            title_slide = presentation.slides.add_slide(title_layout)
+            self._pptx_set_title_slide_text(
+                title_slide,
+                self._report_title("pptx"),
+                (
+                    f"Generated: {manifest_payload['generated_at']}\n"
+                    f"Receptor / Complex: {manifest_payload['complex_name']}\n"
+                    f"Selection mode: {manifest_payload['input_mode']}\n"
+                    f"Ligand targets: {manifest_payload['target_count']}\n"
+                    f"Style: {manifest_payload['style']} | Ray trace: {manifest_payload['ray']}\n"
+                    f"Size: {manifest_payload['width']}x{manifest_payload['height']} | DPI: {manifest_payload['dpi']}\n"
+                    f"Manifest: {manifest_path}"
+                ),
+                Inches,
+                Pt,
+            )
+
+            saved_entries = [entry for entry in manifest_payload.get("images", []) if entry.get("status") == "saved"]
+            entries_by_target: dict[str, list[dict[str, Any]]] = {}
+            for entry in saved_entries:
+                entries_by_target.setdefault(str(entry.get("target_token", "")), []).append(entry)
+
+            target_entries = list(manifest_payload.get("targets", []))
+            for target_index, target_entry in enumerate(target_entries, start=1):
+                target_token = str(target_entry.get("target_token", ""))
+                ligand_label = str(target_entry.get("ligand_label", target_token or f"Target {target_index}"))
+                target_images = sorted(
+                    entries_by_target.get(target_token, []),
+                    key=lambda entry: int(entry.get("view_slot", 0)),
+                )
+
+                if not target_images:
+                    slide = presentation.slides.add_slide(content_layout)
+                    self._pptx_set_slide_title(slide, ligand_label, Inches, Pt)
+                    textbox = slide.shapes.add_textbox(
+                        Inches(0.6),
+                        Inches(1.2),
+                        Inches(12.1),
+                        Inches(4.8),
+                    )
+                    frame = textbox.text_frame
+                    frame.word_wrap = True
+                    frame.text = "No images were saved for this ligand target."
+                    paragraph = frame.add_paragraph()
+                    paragraph.text = f"Target token: {target_token}"
+                    error_message = str(target_entry.get("error", "")).strip()
+                    if error_message:
+                        paragraph = frame.add_paragraph()
+                        paragraph.text = f"Error: {error_message}"
+                    continue
+
+                images_per_slide = self._pptx_images_per_slide()
+                image_chunks = [target_images[index:index + images_per_slide] for index in range(0, len(target_images), images_per_slide)]
+                for chunk_index, image_chunk in enumerate(image_chunks, start=1):
+                    slide = presentation.slides.add_slide(content_layout)
+                    title_text = ligand_label
+                    if len(image_chunks) > 1:
+                        title_text = f"{ligand_label} ({chunk_index}/{len(image_chunks)})"
+                    self._pptx_set_slide_title(slide, title_text, Inches, Pt)
+
+                    info_box = slide.shapes.add_textbox(
+                        Inches(0.6),
+                        Inches(0.9),
+                        Inches(12.1),
+                        Inches(0.65),
+                    )
+                    info_frame = info_box.text_frame
+                    info_frame.word_wrap = True
+                    info_frame.text = f"Target token: {target_token}"
+                    info_frame.paragraphs[0].font.size = Pt(12)
+
+                    interaction_counts = dict(target_entry.get("interaction_counts", {}) or {})
+                    if interaction_counts:
+                        counts_text = ", ".join(
+                            f"{kind}={count}" for kind, count in sorted(interaction_counts.items())
+                        )
+                        paragraph = info_frame.add_paragraph()
+                        paragraph.text = "Interaction counts: " + counts_text
+                        paragraph.font.size = Pt(11)
+
+                    notes = [str(note) for note in target_entry.get("notes", [])]
+                    if notes:
+                        paragraph = info_frame.add_paragraph()
+                        paragraph.text = "Notes: " + " | ".join(notes[:2])
+                        paragraph.font.size = Pt(10)
+
+                    rows, cols = self._pptx_grid_dimensions(len(image_chunk))
+                    left_margin = Inches(0.6)
+                    top_margin = Inches(1.6)
+                    right_margin = Inches(0.6)
+                    bottom_margin = Inches(0.4)
+                    horizontal_gap = Inches(0.25)
+                    vertical_gap = Inches(0.3)
+                    caption_height = Inches(0.32)
+                    usable_width = presentation.slide_width - left_margin - right_margin - (cols - 1) * horizontal_gap
+                    usable_height = presentation.slide_height - top_margin - bottom_margin - (rows - 1) * vertical_gap
+                    cell_width = usable_width / cols
+                    cell_height = usable_height / rows
+
+                    for image_index, entry in enumerate(image_chunk):
+                        row = image_index // cols
+                        col = image_index % cols
+                        cell_left = left_margin + col * (cell_width + horizontal_gap)
+                        cell_top = top_margin + row * (cell_height + vertical_gap)
+                        image_box_height = cell_height - caption_height
+
+                        image_path = Path(str(entry["file"]))
+                        with PILImage.open(image_path) as image:
+                            image_width, image_height = image.size
+
+                        scale = min(float(cell_width) / float(image_width), float(image_box_height) / float(image_height))
+                        scaled_width = int(image_width * scale)
+                        scaled_height = int(image_height * scale)
+                        picture_left = int(cell_left + (cell_width - scaled_width) / 2)
+                        picture_top = int(cell_top + (image_box_height - scaled_height) / 2)
+                        slide.shapes.add_picture(
+                            str(image_path),
+                            picture_left,
+                            picture_top,
+                            width=scaled_width,
+                            height=scaled_height,
+                        )
+
+                        caption_box = slide.shapes.add_textbox(
+                            int(cell_left),
+                            int(cell_top + image_box_height),
+                            int(cell_width),
+                            int(caption_height),
+                        )
+                        caption_frame = caption_box.text_frame
+                        caption_frame.text = f"View {entry['view_slot']}"
+                        caption_frame.paragraphs[0].font.size = Pt(12)
+
+            presentation.save(str(report_path))
+        except Exception as exc:
+            self.dialog.log(f"Could not build the PPTX report: {exc}")
+            QtWidgets.QMessageBox.warning(self.dialog, "PLIV PPTX Export Error", str(exc))
+            return
+
+        self.dialog.log(
+            f"Batch export complete: {exported_count} image(s) across {manifest_payload['target_count']} ligand target(s)."
+        )
+        self.dialog.log(f"Saved PPTX report to {report_path}.")
 
     def save_image(self) -> None:
         default_path = self._default_directory() / self._suggested_image_name()
@@ -1263,8 +1645,14 @@ class PLIVController:
     def _suggested_batch_manifest_name(self, batch_token: str, timestamp: str) -> str:
         return f"{batch_token}_batch_export_{timestamp}.json"
 
+    def _suggested_batch_bundle_name(self, batch_token: str, timestamp: str) -> str:
+        return f"{batch_token}_batch_export_{timestamp}"
+
     def _suggested_batch_report_name(self, batch_token: str, timestamp: str) -> str:
         return f"{batch_token}_batch_report_{timestamp}.docx"
+
+    def _suggested_batch_pptx_report_name(self, batch_token: str, timestamp: str) -> str:
+        return f"{batch_token}_batch_report_{timestamp}.pptx"
 
     def _sanitize_token(self, value: str) -> str:
         cleaned = re.sub(r"[^A-Za-z0-9_]+", "_", str(value)).strip("_")

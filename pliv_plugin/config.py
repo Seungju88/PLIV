@@ -103,6 +103,15 @@ class ConfigManager:
             merged_settings.update(override)
         return merged_settings
 
+    def resolve_path(self, path_value: Any) -> Optional[Path]:
+        raw_value = str(path_value or "").strip()
+        if not raw_value:
+            return None
+        path = Path(raw_value).expanduser()
+        if not path.is_absolute():
+            path = self.path.parent / path
+        return path
+
     def set_interaction_color(self, interaction_type: str, color_value: str) -> None:
         interactions = self._config.setdefault("interactions", {})
         if not isinstance(interactions, dict):

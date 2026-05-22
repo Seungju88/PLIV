@@ -139,7 +139,9 @@ interaction family는 체크박스로 켜고 끌 수 있다. 각 family 오른�
 PLIV가 만든 helper selection, dash object, temporary object를 지운다.
 원본 protein / ligand object 자체를 삭제하는 용도는 아니다.
 
-## 7. View 탭
+## 7. Capture 탭
+
+### 7.1 Saved Views
 
 `Saved Views`는 camera position과 zoom을 저장하는 기능이다.
 
@@ -153,37 +155,11 @@ PLIV가 만든 helper selection, dash object, temporary object를 지운다.
 
 두 기능은 목적이 다르다.
 
-## 8. Session / Export 탭
-
-### 8.1 Save Image
+### 7.2 Save Image
 
 현재 PyMOL 화면을 PNG로 저장한다.
 
-### 8.2 Save Session
-
-PyMOL session 파일을 저장한다. 동시에 아래 정보도 sidecar metadata에 함께
-저장한다.
-
-- PyMOL 창 크기
-- 창 위치
-- viewport 크기
-- 마지막 분석 request
-- 마지막 분석 summary
-
-### 8.3 Load Session
-
-저장한 PyMOL session을 불러온다. PLIV metadata가 함께 있으면 아래 정보도
-복원된다.
-
-- 창 크기
-- viewport
-- 마지막 분석 context
-- selection mode
-
-즉 `Load Session` 뒤에도 `Apply Publication Style` 같은 기능이 바로 이어질 수
-있도록 설계되어 있다.
-
-### 8.4 Batch Export
+### 7.3 Batch Export
 
 저장된 `Saved View 1~5`를 이용해 현재 PLIV visualization state를 여러 장의 PNG로
 일괄 저장한다.
@@ -194,12 +170,61 @@ PyMOL session 파일을 저장한다. 동시에 아래 정보도 sidecar metadat
 - `Current visible state`, `Working view`, `Publication style` 선택
 - `ray trace`, width, height, dpi 지정
 - output folder 선택
+- 실행 시 output folder 아래에 전용 디렉토리 자동 생성
 - export manifest JSON 저장
+
+### 7.4 Report Export
+
+`Report Export`는 현재 batch export 설정과 saved view를 그대로 재사용해 문서를 만든다.
+
 - `Save DOCX Report`로 batch 결과를 Word 보고서로 정리
+- `Save PPTX Report`로 batch 결과를 PowerPoint 슬라이드로 정리
 
 DOCX 보고서는 batch export에서 생성된 PNG 세트를 문서에 삽입하는 방식으로 만들어진다.
 현재 구현은 `python-docx`가 PyMOL이 사용하는 Python 환경에 설치되어 있을 때 동작한다.
 설치되어 있지 않으면 PLIV가 의존성 안내 메시지를 표시한다.
+
+PPTX 보고서는 같은 batch PNG 세트를 ligand target 단위 슬라이드로 정리한다.
+현재 구현은 `python-pptx`가 PyMOL이 사용하는 Python 환경에 설치되어 있을 때 동작한다.
+설치되어 있지 않으면 PLIV가 의존성 안내 메시지를 표시한다.
+
+이제 DOCX와 PPTX는 템플릿 기반으로도 동작할 수 있다.
+- `interaction_config.json`의 `reporting.docx.template`
+- `interaction_config.json`의 `reporting.pptx.template`
+
+에 템플릿 경로를 넣으면 해당 템플릿을 기준으로 보고서를 생성한다.
+경로는 절대경로 또는 `pliv_plugin/resources/` 기준 상대경로를 사용할 수 있다.
+세부 예시는 `pliv_plugin/resources/report_templates/README.md`를 참고한다.
+
+또한 Batch Export, DOCX, PPTX 출력은 실행할 때마다 전용 디렉토리를 하나 만들고, 그 안에 PNG / manifest / report 파일을 함께 저장하도록 동작한다.
+
+## 8. Session 탭
+
+### 8.1 Save Session
+
+PyMOL session 파일을 저장한다. 동시에 아래 정보도 sidecar metadata에 함께
+저장한다.
+
+- PyMOL 창 크기
+- 창 위치
+- viewport 크기
+- 마지막 분석 request
+- 마지막 분석 summary
+- saved view 1~5 정보
+
+### 8.2 Load Session
+
+저장한 PyMOL session을 불러온다. PLIV metadata가 함께 있으면 아래 정보도
+복원된다.
+
+- 창 크기
+- viewport
+- 마지막 분석 context
+- selection mode
+- saved views
+
+즉 `Load Session` 뒤에도 `Apply Publication Style` 같은 기능이 바로 이어질 수
+있도록 설계되어 있다.
 
 ## 9. 권장 사용 시나리오
 
@@ -214,7 +239,7 @@ DOCX 보고서는 batch export에서 생성된 PNG 세트를 문서에 삽입하
 7. `Apply Publication Style`
 8. 필요하면 `Save View`로 시점을 저장
 9. `Batch Export`로 saved view 기반 PNG 세트 출력
-10. 필요하면 `Save DOCX Report`로 이미지 세트를 Word 문서로 정리
+10. 필요하면 `Save DOCX Report` 또는 `Save PPTX Report`로 이미지 세트를 문서로 정리
 
 ### 9.2 Docking pose 검토
 

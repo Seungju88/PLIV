@@ -9,8 +9,25 @@
     "water_cutoff": 3.6,
     "ion_cutoff": 5.0,
     "repair_protein_aromatics": true,
-    "solvent_resn": ["HOH", "WAT", "TIP3"],
-    "ion_resn": ["NA", "K", "CL", "CA", "MG", "ZN", "FE", "MN", "CO", "CU", "NI", "CD"]
+    "solvent_resn": [
+      "HOH",
+      "WAT",
+      "TIP3"
+    ],
+    "ion_resn": [
+      "NA",
+      "K",
+      "CL",
+      "CA",
+      "MG",
+      "ZN",
+      "FE",
+      "MN",
+      "CO",
+      "CU",
+      "NI",
+      "CD"
+    ]
   },
   "profiles": {
     "Maestro": {
@@ -124,6 +141,23 @@
       "ray_trace_mode": 3,
       "ray_shadows": 1,
       "ray_trace_gain": 0.4
+    }
+  },
+  "reporting": {
+    "docx": {
+      "template": "",
+      "title": "PLIV Batch Export Report",
+      "image_width_inches": 6.5,
+      "page_break_between_targets": true
+    },
+    "pptx": {
+      "template": "",
+      "title": "PLIV Batch Export Report",
+      "title_slide_layout": 0,
+      "content_slide_layout": 5,
+      "images_per_slide": 4,
+      "slide_width_inches": 13.333,
+      "slide_height_inches": 7.5
     }
   }
 }

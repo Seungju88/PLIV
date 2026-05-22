@@ -86,6 +86,26 @@ class InteractionRenderer:
     def clear_viewpoints(self) -> None:
         self._stored_viewpoints.clear()
 
+    def capture_selection_colors(self, selection: str) -> dict[tuple[str, int], int]:
+        color_map: dict[tuple[str, int], int] = {}
+        self.cmd.iterate(
+            selection,
+            "color_map[(model, index)] = int(color)",
+            space={"color_map": color_map},
+        )
+        return color_map
+
+    def restore_selection_colors(self, selection: str, color_map: Mapping[tuple[str, int], int] | None) -> None:
+        if not color_map:
+            return
+        stored_colors = dict(color_map)
+        self.cmd.alter(
+            selection,
+            "color = stored_colors.get((model, index), color)",
+            space={"stored_colors": stored_colors},
+        )
+        self.cmd.recolor(selection)
+
     def serialize_viewpoints(self) -> dict[str, list[float]]:
         return {
             str(slot): [float(value) for value in view]

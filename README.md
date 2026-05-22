@@ -50,8 +50,13 @@ Notes:
 
 - `NumPy` is required for PLIV interaction geometry.
 - `python-docx` is only needed for `Batch Export -> Save DOCX Report`.
+- `python-pptx` is only needed for `Batch Export -> Save PPTX Report`.
 - `PyMOL` itself is not managed through `pip` in these files because it is the
   host application/runtime for the plugin.
+
+Report export formatting can be customized through the `reporting` section in
+`pliv_plugin/resources/interaction_config.json` and the template instructions in
+`pliv_plugin/resources/report_templates/README.md`.
 
 ## Troubleshooting
 
